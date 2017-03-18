@@ -36,6 +36,13 @@ class Student():
     	self.num = num
     	self.num_programs = self.num_programs+self.num
     	return self.num_programs
+
+    def __iter__(self):
+        for attr in dir(Student):
+            if not attr.startswith("__"):
+                yield attr
+
+
     
 
 #### DONE WITH STUDENT CLASS DEFINITION
@@ -118,7 +125,7 @@ print("\n\n***** Problem 5 *****")
 ## and save that list in a variable called programmers. You should make sure you pass these tests before continuing, as you'll need this list for problems later on!
 programmers = [Student(student[0],student[1],student[2]) for student in student_tups_list]
 
-print (programmers)
+print (type(programmers))
 # Student("Albert", 1, 10)
 # student[1]
 
@@ -136,18 +143,21 @@ print("\n\n***** Problem 6 *****")
 ## You may add a method to the Student class if you wish in order to do this, but you do not need to. 
 ## (If you do, make sure you do not create any syntax errors that keep code/tests from running!)
 # print (type(x.num_programs for x in programmers))
-def productivity(num_programs,year):
-	productivity = num_programs/year
-	return productivity
-prod_list_old = []
-prod_list_old.append((x.num_programs for x in programmers), (x.years_UM for x in programmers))
+def productivity(lst):
+	prod_list = []
+	for x in lst:
+		prod = x.num_programs/x.years_UM
+		prod_list.append(prod)
+	return prod_list
+	 
+
+prod_iter = map(productivity, programmers.__iter__())
+print (prod_iter)
+# prod_list = list(prod_iter)
+prod_list = (productivity(programmers.__iter__()))
+print (prod_list)
 
 
-print (prod_list_old)
-
-
-# prod_iter = personal_map(productivity((x.num_programs for x in programmers),(x.seniority for x in programmers)))
-# prod_iter = personal_map(productivity((x.num_programs for x in programmers),(x.seniority for x in programmers))
 
 
 ## [PROBLEM 7]
@@ -156,6 +166,7 @@ print("\n\n***** Problem 7 *****")
 ## To do this, you should use a list comprehension (you may also use the zip function, and you may use any variables you have already created).
 
 ## But be careful that if you use answers from previous problems, you use the LISTs you generated, so that all your tests can still pass and you avoid confusion!
+names_and_productivities = list(zip(names,prod_list))
 
 
 
@@ -163,11 +174,17 @@ print("\n\n***** Problem 7 *****")
 print("\n\n***** Problem 8 *****")
 # Use the Python filter function to select the subset of programmers who have names with 5 or more characters. 
 ## (i.e. ["Albert","Dinesh","Euijin"]) Your result should be an filter object that points to Student instances. Save that filter iterator in a variable called long_names.
-
-
+long_names = filter(lambda x: x >= 5, (x.name for x in programmers))
+print (long_names)
+# long_names_list = list(long_names)
+long_names_list=[]
+for x in programmers:
+	if len(x.name) >= 5:
+		long_names_list.append(x)
+print (long_names_list)
 
 ## Then write code to cast the value of long_names to a list and save it in the variable long_names_list. 
-
+# long_names_list = list(long_names)
 
 
 ## [PROBLEM 9]
@@ -177,6 +194,11 @@ print("\n\n***** Problem 9 *****")
 ## (i.e., ["Albert", "Mai", "Dinesh", "Euijin"]). Assign it to a variable called names_with_not_too_much_seniority.
 
 ## Note that you can use another list you have already created for this problem.
+names_with_not_too_much_seniority = []
+for x in programmers:
+	if len(x.name) > x.years_UM:
+		names_with_not_too_much_seniority.append(x.name)
+print (names_with_not_too_much_seniority)
 
 
 
@@ -184,32 +206,60 @@ print("\n\n***** Problem 9 *****")
 ## [PROBLEM 10]
 print("\n\n***** Problem 10 *****")
 
-## Define a function called readfiles, which accepts a list of filenames as input and yields each line in each of the file with that name, assuming those files exist in the same directory as this program.
+## Define a function called readfiles, which accepts a list of filenames as input and yields each line in each of the file with that name, 
+## assuming those files exist in the same directory as this program.
 
-## Define a generator called len_check which accepts a generator of file lines and returns a generator object of all the lines it's accepted whose length is longer than 40 characters.
+## Define a generator called len_check which accepts a generator of file lines and returns a generator object of all the lines it's accepted 
+## whose length is longer than 40 characters.
 
-## Finally, write a function called main_filterer that accepts a list of filenames (strings), and returns a generator of all the lines in those files that are longer than 40 characters. The function should invoke the other function and generator, readfiles and len_check.
+## Finally, write a function called main_filterer that accepts a list of filenames (strings), and returns a generator of 
+## all the lines in those files that are longer than 40 characters. The function should invoke the other function and generator, readfiles and len_check.
 
-## There is a test for this but an even more fun test is to uncomment the code below which invokes the main_filterer function and prints each line from the generator without blank lines in between (that's what the comma is doing).
+## There is a test for this but an even more fun test is to uncomment the code below which invokes the main_filterer function 
+## and prints each line from the generator without blank lines in between (that's what the comma is doing).
 
 ## The examples here http://anandology.com/python-practice-book/iterators.html in your reading may be very helpful!
 
-## We have provided files samplehw6_1.txt and samplehw6_2.txt for your use for this problem, which hopefully you have downloaded, so you can test with those file names! The test below also relies upon these files. Of course, you could also create other files for testing.
+## We have provided files samplehw6_1.txt and samplehw6_2.txt for your use for this problem, which hopefully you have downloaded, 
+## so you can test with those file names! The test below also relies upon these files. Of course, you could also create other files for testing.
 
 # Define readfiles (make sure to close the file reference in the right place)
+
+def readfiles(filenames):
+    for f in filenames:
+        fileref = open(f,'r')
+        for line in fileref: 
+            yield line
+        fileref.close()
+
 
 
 # Define len_check
 
+def len_check(lines):
+	# for line in lines:
+	# 	print (len(line))
+	gen = (line for line in lines if len(line) > 40)
+	return gen
+	# for line in lines:
+	# 	if len(line) > 40:
+	# 		gen.append(line)
+	# return gen
+
+
 
 # Define main_filterer
+def main_filterer(filenames):
+	lines = readfiles(filenames)
+	long_line = len_check(lines)
+	return long_line
 
 
 
 ## Uncomment this code to test so you can see easily what results from your code. DO uncomment it. DO NOT delete or change it. (You can add other code above while you work, of course.)
-# provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
-# for ln in main_filterer(provided_file_names):
-#     print(ln.rstrip('\n'), end=" ")
+provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
+for ln in main_filterer(provided_file_names):
+    print(ln.rstrip('\n'), end=" ")
 #####
 
 
